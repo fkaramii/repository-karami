@@ -20,7 +20,6 @@ namespace alefba.Controllers
     [ApiController]
     public class CurrencyController : ControllerBase
     {
-        ArrayList currencyList = new ArrayList();
 
         // GET api/currency
         [HttpGet, AllowAnonymous]
@@ -39,6 +38,7 @@ namespace alefba.Controllers
         [HttpGet, AllowAnonymous, Route(nameof(GetData))]
         public async Task<ActionResult<IEnumerable<ArrayList>>> GetData()
         {
+            ArrayList currencyList = new ArrayList();
             var path = "https://mex.co.ir/v1/service/product/fetch/mainboard";
             HttpClient client = new HttpClient();
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, path);
@@ -79,7 +79,7 @@ namespace alefba.Controllers
         {
             MongoClient dbClient = new MongoClient("mongodb://localhost:27017/");
             var database = dbClient.GetDatabase("alefba");
-            var collection = database.GetCollection<BsonDocument>("currencyTBL2");
+            var collection = database.GetCollection<BsonDocument>("currency");
             collection.InsertOne(document);
             return new string[] { document.ToString() };
         }
@@ -94,7 +94,7 @@ namespace alefba.Controllers
                 toDateTime = DateTime.Now;
             }
             int average;
-            var collection = new MongoClient().GetDatabase("alefba").GetCollection<CurrencyResult>("currencyTBL2");
+            var collection = new MongoClient().GetDatabase("alefba").GetCollection<CurrencyResult>("currency");
             var secondDocument = collection.Find(new BsonDocument()).ToList().Where(item => item.miladiDate > fromDateTime && item.miladiDate < toDateTime);
             var rateDocument = secondDocument.Select(item => item.rate).ToList();
             int sum = rateDocument.Sum();
@@ -104,11 +104,6 @@ namespace alefba.Controllers
                 average = 0;
             }
             return "average is:" + average;
-        }
-
-        private object GetDateTime(object p)
-        {
-            throw new NotImplementedException();
         }
 
     }
