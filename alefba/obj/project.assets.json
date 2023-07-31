@@ -10370,11 +10370,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\project\\alefba\\alefba\\alefba\\alefba.api.csproj",
+      "projectUniqueName": "C:\\project\\myProject\\alefba\\alefba\\alefba.api.csproj",
       "projectName": "alefba.api",
-      "projectPath": "C:\\project\\alefba\\alefba\\alefba\\alefba.api.csproj",
+      "projectPath": "C:\\project\\myProject\\alefba\\alefba\\alefba.api.csproj",
       "packagesPath": "C:\\Users\\fereshte.karami\\.nuget\\packages\\",
-      "outputPath": "C:\\project\\alefba\\alefba\\alefba\\obj\\",
+      "outputPath": "C:\\project\\myProject\\alefba\\alefba\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

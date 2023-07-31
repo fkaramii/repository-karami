@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ZMRpvsY8gpghRwhwRr5PSPn8boI6Cf5ahtund+O3Q73nhBRZmaAgV6GeJMcdLE4k04YdiLg/erPgxRvNFuSOXw==",
+  "dgSpecHash": "9IBCY3Y1rOymSTnH3v2JG96C+6SeeA3RIlqf3t7oyfDlJhc4W/cHdGrsr76EPd9NvDkHOgcACZjjFInJkQSCTA==",
   "success": true,
-  "projectFilePath": "C:\\project\\alefba\\alefba\\alefba\\alefba.api.csproj",
+  "projectFilePath": "C:\\project\\myProject\\alefba\\alefba\\alefba.api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\fereshte.karami\\.nuget\\packages\\awssdk.core\\3.7.100.14\\awssdk.core.3.7.100.14.nupkg.sha512",
     "C:\\Users\\fereshte.karami\\.nuget\\packages\\awssdk.securitytoken\\3.7.100.14\\awssdk.securitytoken.3.7.100.14.nupkg.sha512",
