@@ -20,10 +20,9 @@ namespace alefba.Controllers
     [ApiController]
     public class CurrencyController : ControllerBase
     {
-
         // GET api/currency
         [HttpGet, AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<string>>> GetAsync()
+        public string GetAsync()
         {
             var startTimeSpan = TimeSpan.Zero;
             var periodTimeSpan = TimeSpan.FromSeconds(30);
@@ -31,70 +30,72 @@ namespace alefba.Controllers
             {
                 var result = GetData();
             }, null, startTimeSpan, periodTimeSpan);
-            return new string[] { " Repeat the data extraction every 30 seconds." };
+            return "Repeat the data extraction every 30 seconds.";
         }
 
         // GET api/currency/getdata
         [HttpGet, AllowAnonymous, Route(nameof(GetData))]
-        public async Task<ActionResult<IEnumerable<ArrayList>>> GetData()
+        public async Task<ArrayList> GetData()
         {
             ArrayList currencyList = new ArrayList();
             var path = "https://mex.co.ir/v1/service/product/fetch/mainboard";
-            HttpClient client = new HttpClient();
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, path);
-            requestMessage.Content = JsonContent.Create(new { type = "C" });
-            HttpResponseMessage response = client.SendAsync(requestMessage).Result;
-            string apiResponse = response.Content.ReadAsStringAsync().Result;
-            var resObject = JsonConvert.DeserializeObject<Currency>(apiResponse);
-
-            if (response.IsSuccessStatusCode)
+            using (HttpClient client = new HttpClient())
             {
-                Calendar calendar = new Calendar();
-                var date = resObject.info.products[1].LASTEDIT.Split()[0].Split('/');
-                var miladiDate = Convert.ToDateTime(calendar.Miladi(date[0], date[1], date[2]));
-                var document = new BsonDocument {
+                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, path);
+                requestMessage.Content = JsonContent.Create(new { type = "C" });
+                HttpResponseMessage response = client.SendAsync(requestMessage).Result;
+                string apiResponse = response.Content.ReadAsStringAsync().Result;
+                var resObject = JsonConvert.DeserializeObject<Currency>(apiResponse);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Calendar calendar = new Calendar();
+                    var date = resObject.info.products[1].LASTEDIT.Split()[0].Split('/');
+                    var miladiDate = Convert.ToDateTime(calendar.Miladi(date[0], date[1], date[2]));
+                    var document = new BsonDocument {
                  {"currency",resObject.info.products[1].SYMBOL}
                 , {"date",resObject.info.products[1].LASTEDIT.Split()[0]}
                 , {"rate",resObject.info.products[1].SELLPRICE}
                 , {"time",resObject.info.products[1].LASTEDIT.Split()[1]}
                 , {"miladiDate",miladiDate}
         };
-                await addData(document);
-                Currency currency = new Currency
-                {
-                    currency = resObject.info.products[1].SYMBOL,
-                    rate = resObject.info.products[1].SELLPRICE,
-                    time = resObject.info.products[1].LASTEDIT.Split()[1],
-                    date = resObject.info.products[1].LASTEDIT.Split()[0],
-                    miladiDate = miladiDate
-                };
-
-                currencyList.Add(currency);
-                Console.WriteLine(currencyList);
+                    addData(document);
+                    Currency currency = new Currency
+                    {
+                        currency = resObject.info.products[1].SYMBOL,
+                        rate = resObject.info.products[1].SELLPRICE,
+                        time = resObject.info.products[1].LASTEDIT.Split()[1],
+                        date = resObject.info.products[1].LASTEDIT.Split()[0],
+                        miladiDate = miladiDate
+                    };
+                    currencyList.Add(currency);
+                }
             }
-            return new ArrayList[] { currencyList };
+
+
+            return currencyList;
         }
 
-        public async Task<ActionResult<IEnumerable<string>>> addData(BsonDocument document)
+        public void addData(BsonDocument document)
         {
             MongoClient dbClient = new MongoClient("mongodb://localhost:27017/");
             var database = dbClient.GetDatabase("alefba");
-            var collection = database.GetCollection<BsonDocument>("currency");
+            var collection = database.GetCollection<BsonDocument>("currency3");
             collection.InsertOne(document);
-            return new string[] { document.ToString() };
         }
 
         // POST api/currency/average
         [HttpPost, Route(nameof(Average))]
-        public string Average(DateTime? fromDateTime =null, DateTime? toDateTime=null)
-        
-        {  
-            if (!fromDateTime.HasValue && !toDateTime.HasValue) {
+        public string Average(DateTime? fromDateTime = null, DateTime? toDateTime = null)
+
+        {
+            if (!fromDateTime.HasValue && !toDateTime.HasValue)
+            {
                 fromDateTime = DateTime.Now.AddDays(-15);
                 toDateTime = DateTime.Now;
             }
             int average;
-            var collection = new MongoClient().GetDatabase("alefba").GetCollection<CurrencyResult>("currency");
+            var collection = new MongoClient().GetDatabase("alefba").GetCollection<CurrencyResult>("currency3");
             var secondDocument = collection.Find(new BsonDocument()).ToList().Where(item => item.miladiDate > fromDateTime && item.miladiDate < toDateTime);
             var rateDocument = secondDocument.Select(item => item.rate).ToList();
             int sum = rateDocument.Sum();
